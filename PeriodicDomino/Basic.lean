@@ -32,4 +32,24 @@ def HasPeriodicTiling (s : Finset Tile) : Prop :=
     (∀ row col, f row col ∈ s) ∧
     ∃ row_period col_period : ℤ, (row_period ≠ 0 ∨ col_period ≠ 0) ∧ ∀ row col, f (row + row_period) (col + col_period) = f row col
 
+/-- An allowed unordered pair of west and north colors. -/
+def Compatible (s : Finset Tile) (a b : ℕ) : Prop :=
+  ∃ t ∈ s, (t.W = a ∧ t.N = b) ∨ (t.W = b ∧ t.N = a)
+
+def NWDeterministic (s : Finset Tile) : Prop :=
+  ∀ t ∈ s, ∀ u ∈ s, t.N = u.N → t.W = u.W → t = u
+
+def NWCommutative (s : Finset Tile) : Prop :=
+  ∀ t ∈ s, Tile.mk t.N t.W t.S t.E ∈ s
+
+def SEIdentical (s : Finset Tile) : Prop := ∀ t ∈ s, t.S = t.E
+
+/-- With E=S as output, replacing either input by that output disables the pair. -/
+def SelfDisabling (s : Finset Tile) : Prop :=
+  ∀ t ∈ s, ¬ Compatible s t.W t.E ∧ ¬ Compatible s t.N t.E
+
+/-- After two linked tiles, neither original input may pair with the final output. -/
+def GrandparentExclusion (s : Finset Tile) : Prop :=
+  ∀ t ∈ s, ∀ u ∈ s, (t.E = u.W ∨ t.E = u.N) → ¬ Compatible s t.W u.E ∧ ¬ Compatible s t.N u.E
+
 end PeriodicDomino.Wang
